@@ -1,6 +1,7 @@
 const userModel=require('../models/userModel')
 const {uploadFile}=require('../router/aws')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 
 const createUser=async function(req, res){
@@ -72,7 +73,33 @@ const createUser=async function(req, res){
         return res.status(500).send({status:false, message:error.message});
     }
 }
+//postlogin and jwt creation
+const login = async function(req,res){
+    try{
+        let data = req.body
+        if(Object.keys(data)===0) return res.status(400).send({status:false, message:"email and password required to login"})
+        let {email,password} = data
+        let user = await userModel.findOne({email:email , password:password});
+        if(!user) return res.status(400).send({status:false, message:"User is not registered"});
+        console.log(user)
 
+    //-------------------JWT creation
+        let token = jwt.sign({
+            userId: user._id.toString(),
+            exp: Math.floor(Date.now() / 1000) + (10 * 60),
+            iat: new Date().getTime()
+        }, "Project-5",
+        );
+        console.log(user._id.toString())
+        
+        return res.status(200).send({status: true, message: "User login successfull",data: {userId: user._id.toString(),token }})
+
+
+    } catch (err){
+        return res.status(500).send({error:err.message})
+    }
+
+}
 
 const getUserProfile = async function (req ,res) {
     try{
@@ -100,4 +127,4 @@ const getUserProfile = async function (req ,res) {
     }
 }
 
-module.exports ={createUser,getUserProfile} 
+module.exports ={createUser,getUserProfile,login} 
