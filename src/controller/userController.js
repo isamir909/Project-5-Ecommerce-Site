@@ -1,6 +1,7 @@
 const userModel=require('../models/userModel')
 const {uploadFile}=require('../router/aws')
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 
 const createUser=async function(req, res){
@@ -20,6 +21,13 @@ const createUser=async function(req, res){
         for(let i=0;i<requiredFieldOfRequestArray.length;i++){
              if(!requestArray.includes(requiredFieldOfRequestArray[i])) 
              return res.status(400).send({status:false,msg:requiredFieldOfRequestArray[i] +" is required"})
+            
+             let key= requiredFieldOfRequestArray[i].replace(/"/g, '')
+             
+             
+            console.log(isValid(data.key))
+          //   let key= requiredFieldOfRequestArray[i].replace(/"/g, '')
+            if(!validator.isEmpty(data.key)) return res.status(400).send({status:false,msg:`${key} can not be empty`})
 
         }
         if(typeof data.address !="object") return res.status(400).send({status:false,msg:"address must be in object form"})
@@ -68,7 +76,7 @@ const createUser=async function(req, res){
         return  res.status(201).send({ status: true,  message: "User created successfully", data: userData })
         
     } catch (error) {
-
+        console.log(error)
         return res.status(500).send({status:false, message:error.message});
     }
 }
