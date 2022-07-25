@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/hempalS39/Project-5-Products-Management#readme",
   "dependencies": {
+    "aws-sdk": "^2.1181.0",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
     "expresss": "^0.0.0",
