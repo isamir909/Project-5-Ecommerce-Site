@@ -6,6 +6,9 @@ const userController=require('../controller/userController')
 
 router.post('/register',userController.createUser)
 
+router.get('/user/:userId/profile',userController.getUserProfile)
+
+
 
 
 

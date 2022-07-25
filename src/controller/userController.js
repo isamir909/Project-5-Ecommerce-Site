@@ -30,4 +30,31 @@ const createUser=async function(req, res){
     }
 }
 
-module.exports ={createUser} 
+
+const getUserProfile = async function (req ,res) {
+    try{
+        userId = req.params.userId
+        
+
+    //     let token = req.headers["x-api-key"]
+       
+    //     if (!token) {return res.status(404).send({ status: false, msg: 'Token is Mandatory' })}
+        
+    //   let  decodedToken = jwt.verify(token, "")
+    //   let userLoggedIn = decodedToken.userId
+
+    //   if(userId != userLoggedIn) return res.send({status: false, msg:"user loggedIn is not allowed to get the profile details" })
+
+        const profile = await userModel.findById(userId)
+        if(profile == null){ 
+            return res.status(404).send({status:false, message:"userProfile not found"})
+        }
+        else return res.status(200).send({status:true, message:"User profile details", data:profile})
+
+    }
+    catch(error){
+        return res.status(500).send({status:false, message:error.message})
+    }
+}
+
+module.exports ={createUser,getUserProfile} 
