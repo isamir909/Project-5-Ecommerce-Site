@@ -11,7 +11,7 @@ const userModel= new mongoose.Schema({
  
     phone:  {type:String, required:true, trim:true, unique:true},
   
-    password:  {type:String, required:true,minLength:8, maxLength:15},
+    password:  {type:String, required:true},
 
     address: { 
         shipping: {
