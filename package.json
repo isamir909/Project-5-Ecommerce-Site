@@ -1,0 +1,28 @@
+{
+  "name": "project-5-products-management",
+  "version": "1.0.0",
+  "description": "Bulding a replica of E-commerce website ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hempalS39/Project-5-Products-Management.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hempalS39/Project-5-Products-Management/issues"
+  },
+  "homepage": "https://github.com/hempalS39/Project-5-Products-Management#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1",
+    "expresss": "^0.0.0",
+    "mongoose": "^6.4.6",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.19"
+  }
+}
