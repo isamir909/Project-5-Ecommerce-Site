@@ -101,30 +101,99 @@ const login = async function(req,res){
 
 }
 
-const getUserProfile = async function (req ,res) {
-    try{
-        userId = req.params.userId
+// const getUserProfile = async function (req ,res) {
+//     try{
+//         userId = req.params.userId
         
 
-    //     let token = req.headers["x-api-key"]
+//     //     let token = req.headers["x-api-key"]
        
-    //     if (!token) {return res.status(404).send({ status: false, msg: 'Token is Mandatory' })}
+//     //     if (!token) {return res.status(404).send({ status: false, msg: 'Token is Mandatory' })}
         
-    //   let  decodedToken = jwt.verify(token, "")
-    //   let userLoggedIn = decodedToken.userId
+//     //   let  decodedToken = jwt.verify(token, "")
+//     //   let userLoggedIn = decodedToken.userId
 
-    //   if(userId != userLoggedIn) return res.send({status: false, msg:"user loggedIn is not allowed to get the profile details" })
+//     //   if(userId != userLoggedIn) return res.send({status: false, msg:"user loggedIn is not allowed to get the profile details" })
 
-        const profile = await userModel.findById(userId)
-        if(profile == null){ 
-            return res.status(404).send({status:false, message:"userProfile not found"})
-        }
-        else return res.status(200).send({status:true, message:"User profile details", data:profile})
+//         const profile = await userModel.findById(userId)
+//         if(profile == null){ 
+//             return res.status(404).send({status:false, message:"userProfile not found"})
+//         }
+//         else return res.status(200).send({status:true, message:"User profile details", data:profile})
 
-    }
-    catch(error){
-        return res.status(500).send({status:false, message:error.message})
-    }
-}
+//     }
+//     catch(error){
+//         return res.status(500).send({status:false, message:error.message})
+//     }
+// }
 
-module.exports ={createUser,getUserProfile,login} 
+
+//--------------------------GET /user/:userId/profile (Authentication required)
+
+const getUserProfile = async function (req,res){
+    try{
+        let id = req.params.userId
+        let user = await userModel.findById(id)
+        let token=req.headers.authorization
+        if(!token) return res.status(401).send({status:false,message:"Authentication required"});
+        
+        let newToken = token.replace('Bearer ',"")
+        //console.log(newToken)
+//----------------------authorisation
+        let decodedToken = jwt.verify(newToken, "Project-5")
+        // jwt.verify(token, "Project-5", (err, decoded)=>{
+        //     if(err){
+        //         return res.status(401).send({status:false, message:err.message})
+        //     } else {
+        //         req['userId'] = decoded.userId
+        //     }
+        // })
+        //const userAuthorised = req.userId
+        const userAuthorised = decodedToken.userId
+        //console.log(userAuthorised)
+        if(id !== userAuthorised ) return res.status(403).send({status:false, message:"Authorisation failed"})
+//-----------------------SerachingData
+        const getData = await userModel.findById(id)
+        return res.status(200).send({status:true,message:getData})
+
+    } catch(err){
+        return res.status(500).send({error:err.message})
+    }}
+
+//--------------------------------4-PUT /user/:userId/profile (Authentication and Authorization required)
+
+const updateData = async function(req,res){
+try{
+        let data = req.body
+        console.log(data)
+        let id = req.params.userId
+        let user = await userModel.findById(id)
+        if(!user) return res.status(400).send({status:false, messahe:"User Not Found"})
+        let token=req.headers.authorization
+        if(!token) return res.status(401).send({status:false,message:"Authentication required"});
+        let newToken = token.replace('Bearer ',"")
+        //console.log(newToken)
+//----------------------authorisation
+        let decodedToken = jwt.verify(newToken, "Project-5")
+        // jwt.verify(token, "Project-5", (err, decoded)=>{
+        //     if(err){
+        //         return res.status(401).send({status:false, message:err.message})
+        //     } else {
+        //         req['userId'] = decoded.userId
+        //     }
+        // })
+        //const userAuthorised = req.userId
+        const userAuthorised = decodedToken.userId
+        if(id !== userAuthorised ) return res.status(403).send({status:false, message:"Authorisation failed"})
+
+        let updatedData = await userModel.findOneAndUpdate(
+            {_id: id},
+            {$set:data},
+            {new:true});
+        return res.status(200).send({status:true,message:updatedData})
+
+} catch(err){
+    return res.status(500).send({error:err.message})
+}}
+//-------------------Exports
+module.exports ={createUser,login,getUserProfile,updateData}
