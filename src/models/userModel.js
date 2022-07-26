@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const userModel= new mongoose.Schema({
@@ -24,8 +25,7 @@ const userModel= new mongoose.Schema({
             city:   {type:String, required:true, trim:true},
             pincode:{type:Number, required:true, trim:true}
           }
-      
-    }
+     }
 },{timestamps:true})
 
 module.exports =mongoose.model('user',userModel)
