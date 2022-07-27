@@ -8,7 +8,7 @@ const productModel= new mongoose.Schema({
 
     price: {type: Number, required: true,trim: true},//validation
 
-    currencyId: {type: String, required:true, default: 'INR'},
+    currencyId: {type: string, required:true},
 
     currencyFormat: {type: String, required: true,default : "₹"},
 
@@ -16,7 +16,7 @@ const productModel= new mongoose.Schema({
 
     productImage: {type: String, required: true},//must be image
     
-    style: {type: String},
+    style: {type: String,trim:true},
 
     availableSizes: [{type:String}],
 
