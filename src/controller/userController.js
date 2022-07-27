@@ -11,6 +11,8 @@ const createUser=async function(req, res){
     try {//password regex //json.parse
         let data=req.body
         let files=req.files
+    //     let formate= files[0].originalname
+    //    console.log(formate)
         const {fname,lname,email,password,phone,address}=data
         let requestArray=Object.keys(data)
         let requiredFieldOfRequestArray=[ "fname","lname","email","password","phone","address"]
@@ -19,7 +21,7 @@ const createUser=async function(req, res){
         
     if(requestArray.length==0) return res.status(400).send({status:false,msg:"body can not be empty"})
     if(files.length==0) return res.status(400).send({status:false,msg:"Enter profile image"});
-    for(let i=0;i<requiredFieldOfRequestArray.length;i++){
+    for(let i=0;i<requiredFieldOfRequestArray.length;i++){ 
              if(!requestArray.includes(requiredFieldOfRequestArray[i])) 
              return res.status(400).send({status:false,msg:requiredFieldOfRequestArray[i] +" is required"})
     }
@@ -29,7 +31,7 @@ const createUser=async function(req, res){
                 if(!isValidString(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be empty`})
     } 
         let requestArrayOfAddress=Object.keys(data.address)
-        data.address=JSON.parse(data.address)
+      
         if(typeof data.address !="object") return res.status(400).send({status:false,msg:"address must be in object form"})
         if(!requestArrayOfAddress.includes("shipping"))return res.status(400).send({status:false,msg:"shipping address is required"})
         if(!requestArrayOfAddress.includes("billing"))return res.status(400).send({status:false,msg:"billing address is required"})
@@ -92,7 +94,7 @@ const createUser=async function(req, res){
         return  res.status(201).send({ status: true,  message: "User created successfully", data: userData })
          
     } catch (error) {
-    
+    console.log(error);
         return res.status(500).send({status:false, message:error.message});
     } 
 };
@@ -159,7 +161,7 @@ const updateData = async function(req,res){
         let data = req.body 
         const userId=req.params.userId 
         const files=req.files
-        
+
         let userdata=await userModel.findOne({_id:userId}).select({_id:0,updatedAt:0,createdAt:0,__v:0}).lean();
        
         if(data.fname){if(!validator.isAlpha(data.fname))return res.status(400).send({status:false,msg:'fname must be between a-z or A-Z'})

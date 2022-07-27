@@ -8,7 +8,7 @@ const userModel= new mongoose.Schema({
   
     email: {type:String, required:true, trim:true, unique:true, lowercase:true},
 
-    profileImage:{type:String, required:true, trim:true},
+    profileImage:{type:String, required:true, trim:true},//only image
  
     phone:  {type:String, required:true, trim:true, unique:true},
   
