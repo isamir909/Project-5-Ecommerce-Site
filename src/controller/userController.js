@@ -153,79 +153,93 @@ const getUserProfile = async function (req ,res) {
     catch(error){
         return res.status(500).send({status:false, message:error.message})
     }
-}
+};
+
 
 const updateData = async function(req,res){
     try{
         let data = req.body
         const userId=req.params.userId
-    
-        if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ status: false, Msg: "please provide data to update" })
-        }
-        //console.log(data);
+        const files=req.files
+      
+    // if (Object.keys(req.body).length == 0) {return res.status(400).send({ status: false, Msg: "Data is required" })}
         let userdata=await userModel.findOne({_id:userId}).select({_id:0,updatedAt:0,createdAt:0,__v:0}).lean();
-
+       
         if(data.fname){if(!validator.isAlpha(data.fname))return res.status(400).send({status:false,msg:'fname must be between a-z or A-Z'})
         userdata.fname=data.fname } 
-    //    console.log(userdata.fname)
+      
         if(data.lname){if(!validator.isAlpha(data.lname))return res.status(400).send({status:false,msg:'lname must be between a-z or A-Z'})
-        userdata.lname=data.lname }  
-
-        if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid mobile number"})
-        userdata.phone = data.phone}  
+        userdata.lname=data.lname
+    }  
+    if(data.password){ 
+        if(data.password.length<8 || data.password.length>15)return res.status(400).send({status:false,msg:'password must be at least 8 characters long and should be less than 15 characters'})
+        //password regex
+        const saltRounds = 10;
+        const hash = bcrypt.hashSync(data.password, saltRounds);
+        userdata.password=hash
+    }   
         
-        if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
-         userdata.email=data.email} 
-        
-    //   console.log(data.address.billing.city)
-         
-    //    if(data.address.billing.city){ if(!validator.isAlpha(data.address.billing.city))return res.status(400).send({status:false,msg:'city name in billing must be between a-z or A-Z'})}    
-      if(data.address){
+    if(data.address){
         if(data.address.billing){
             if(data.address.billing.city){
                 if(!validator.isAlpha(data.address.billing.city))return res.status(400).send({status:false,msg:'city name in billing must be between a-z or A-Z'})
                 userdata.address.billing.city=data.address.billing.city}}}
-    //   console.log(data.address.billing.city)
+  
+    if(data.address){
+        if(data.address.billing){
+            if(data.address.billing.pincode){
+                if(!validPinCode(data.address.billing.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code billing address"});
+                userdata.address.billing.pincode=data.address.billing.pincode}}}
+                if(data.address){    
+       if(data.address.billing){
+            if(data.address.billing.street){
+                userdata.address.billing.street=data.address.billing.street}}}
 
-    //   console.log(data.address.shipping.city)
-      //  if(data.address.shipping.city){  if(!validator.isAlpha(data.address.shipping.city))return res.status(400).send({status:false,msg:'city name in shipping must be between a-z or A-Z'});}
-      if(data.address){
-        if(data.address.shipping){
-            if(data.address.shipping.city){
-                if(!validator.isAlpha(data.address.shipping.city))return res.status(400).send({status:false,msg:"city name in shipping must be between a-z or A-Z"})
-                userdata.address.shipping.city= data.address.shipping.city}}}
-
-     if(data.address){
-        if(data.address.shipping){
-            if(data.address.shipping.street){
-                userdata.address.shipping.street= data.address.shipping.street}}}  
-                
     if(data.address){
         if(data.address.shipping){
+            if(data.address.shipping.city){
+                if(!validator.isAlpha(data.address.shipping.city))return res.status(400).send({status:false,msg:'city name in shipping must be between a-z or A-Z'})
+                userdata.address.shipping.city=data.address.shipping.city}}}
+  
+     if(data.address){
+        if(data.address.shipping){
             if(data.address.shipping.pincode){
-                if(!validPinCode(data.address.shipping.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code in shipping address"})
-                userdata.address.shipping.pincode= data.address.shipping.pincode}}}            
+                if(!validPinCode(data.address.shipping.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code shipping address"});
+                userdata.address.shipping.pincode=data.address.shipping.pincode}}}
+               
+     if(data.address){    
+         if(data.address.shipping){
+             if(data.address.shipping.street){
+                userdata.address.shipping.street=data.address.shipping.street}}}
         
-    //   console.log(data.address.shipping.city)
+     
+    let findEmail= await userModel.findOne({email:data.email})
+      if(findEmail)return res.status(400).send({status:false,msg:"This Email is already exist"});
 
-             
-          
-    //check for uniqueness
+     if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
+        userdata.email=data.email
+      //check for uniqueness 
+       
+    }      
+
     
-        if(data.password){ 
-            if(data.password.length<8 || data.password.length>15)return res.status(400).send({status:false,msg:'password must be at least 8 characters long and should be less than 15 characters'})
-            const saltRounds = 10;
-            const hash = bcrypt.hashSync(data.password, saltRounds);
-            data.password=hash
-        }  
-      //   if(data.address.billing.pincode){ if(!validPinCode(data.address.billing.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code billing address"})}   
-            
-     //  if(data.address.shipping.pincode){if(!validPinCode(data.address.shipping.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code in shipping address"})};
-    //    console.log(userdata);
+    let findMobile= await userModel.findOne({phone:data.phone})
+    if(findMobile)return res.status(400).send({status:false,msg:"This phone number is already in use"});
+
+    if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid  mobile number"})
+        userdata.phone=data.phone
+          //check for uniqueness 
+        }
+
+    if(files)if(files.length!=0){
+         if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
+            userdata.profileImage=uploadedFileURL}
+            else{return res.status(400).send({ msg: "Enter profile image" }) }
+        }
+   
          let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:userdata},{new:true});
-       //  console.log(updatedData);
-        return res.status(200).send({status:true,message:updatedData})
+
+         return res.status(200).send({status:true,message:updatedData})
     
     } catch(err){
         console.log(err)
