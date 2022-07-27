@@ -212,13 +212,11 @@ const updateData = async function(req,res){
              if(data.address.shipping.street){
                 userdata.address.shipping.street=data.address.shipping.street}}}
         
-     
-    let findEmail= await userModel.findOne({email:data.email})
-      if(findEmail)return res.status(400).send({status:false,msg:"This Email is already exist"});
 
      if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
-        userdata.email=data.email
-      //check for uniqueness 
+     let findEmail= await userModel.findOne({email:data.email})
+     if(findEmail)return res.status(400).send({status:false,msg:"This Email is already exist"});
+     userdata.email=data.email
        
     }      
 
@@ -227,9 +225,10 @@ const updateData = async function(req,res){
     if(findMobile)return res.status(400).send({status:false,msg:"This phone number is already in use"});
 
     if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid  mobile number"})
-        userdata.phone=data.phone
-          //check for uniqueness 
-        }
+    let findMobile= await userModel.findOne({phone:data.phone})
+    if(findMobile)return res.status(400).send({status:false,msg:"This phone number is already in use"});
+    userdata.phone=data.phone
+     }
 
     if(files)if(files.length!=0){
          if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
