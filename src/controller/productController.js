@@ -80,9 +80,9 @@ try {
         findData['title']={$regex:requestQuery.name} 
     }
     if(requestQuery.priceGreaterThan){
-        let val=Math.ceil(-50.60 )
-        let validPrice=/^\d+$/.test(val)
-      if(!validPrice)
+      //  let val=Math.ceil(-50.60 )
+     //   let validPrice=/^\d+$/.test(val)
+    //  if(!validPrice)
         findData['price']={$gt:requestQuery.priceGreaterThan} 
      } 
      if(requestQuery.priceLessThan){
