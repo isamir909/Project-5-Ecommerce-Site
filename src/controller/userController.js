@@ -187,6 +187,19 @@ const updateData = async function(req,res){
             
      //  if(data.address.shipping.pincode){if(!validPinCode(data.address.shipping.pincode))return res.status(400).send({status:false,msg:"Enter valid pin code in shipping address"})};
        console.log(userdata);
+
+       if(data.profileImage){
+            let files=req.files
+            if (files && files.length > 0) {
+                if (!(isValidImg(files[0].mimetype))) {
+                    return res.status(400).send({ status: false, message: "Image Should be of JPEG/ JPG/ PNG" })
+                }
+                let uploadedFileURL = await uploadFile(files[0])
+                user.profileImage = uploadedFileURL
+            }
+        else { res.status(400).send({ status: false, message: "profileImage is Required" }) }
+        }
+
          let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:userdata},{new:true});
        //  console.log(updatedData);
         return res.status(200).send({status:true,message:updatedData})
