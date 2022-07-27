@@ -159,8 +159,7 @@ const updateData = async function(req,res){
         let data = req.body 
         const userId=req.params.userId 
         const files=req.files
-      
-   
+        
         let userdata=await userModel.findOne({_id:userId}).select({_id:0,updatedAt:0,createdAt:0,__v:0}).lean();
        
         if(data.fname){if(!validator.isAlpha(data.fname))return res.status(400).send({status:false,msg:'fname must be between a-z or A-Z'})
@@ -209,22 +208,34 @@ const updateData = async function(req,res){
          if(data.address.shipping){
              if(data.address.shipping.street){
                 userdata.address.shipping.street=data.address.shipping.street}}}
+        
 
-        if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
-        userdata.email=data.email 
-      //check for uniqueness 
+     if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
+     let findEmail= await userModel.findOne({email:data.email})
+     if(findEmail)return res.status(400).send({status:false,msg:"This Email is already exist"});
+     userdata.email=data.email
+       
     }      
-        if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid mobile number"});  
-          //check for uniqueness 
-        }
-        if(files){if(files.length!=0){ 
-            if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
-                userdata.profileImage=uploadedFileURL}
-            }}
 
+    
+    let findMobile= await userModel.findOne({phone:data.phone})
+    if(findMobile)return res.status(400).send({status:false,msg:"This phone number is already in use"});
+
+    if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid  mobile number"})
+    let findMobile= await userModel.findOne({phone:data.phone})
+    if(findMobile)return res.status(400).send({status:false,msg:"This phone number is already in use"});
+    userdata.phone=data.phone
+     }
+
+    if(files)if(files.length!=0){
+         if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
+            userdata.profileImage=uploadedFileURL}
+            else{return res.status(400).send({ msg: "Enter profile image" }) }
+        }
    
          let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:userdata},{new:true});
-        return res.status(200).send({status:true,message:updatedData})
+
+         return res.status(200).send({status:true,message:updatedData})
     
     } catch(err){
         console.log(err)
