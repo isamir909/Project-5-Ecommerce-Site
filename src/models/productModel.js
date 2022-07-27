@@ -10,7 +10,7 @@ const productModel= new mongoose.Schema({
 
     currencyId: {type: String, required:true},
 
-    currencyFormat: {type: String, required: true},
+    currencyFormat: {type: String, required: true,default : "₹"},
 
     isFreeShipping: {type: Boolean, default: false},
 

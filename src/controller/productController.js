@@ -1,4 +1,68 @@
-const productModel=require('../models/productModel')
+const productModel = require('../models/productModel');
+const { uploadFile } = require('../router/aws')
+const {isValid, isValidString} = require('../middleware/validation')
+
+
+ 
+//----------POST /products
+const createProduct = async function(req,res){
+    try{
+        let data = req.body
+        let files = req.files
+        let availableSizes=data.availableSizes
+        let isFreeShipping=data.isFreeShipping
+        //console.log(isFreeShipping)
+        //---checking for empty body and empty image
+        let requestArray = Object.keys(data)//taking request body in variable
+        if (requestArray.length == 0) return res.status(400).send({ status: false, msg: "body can not be empty" })
+        if (files.length == 0) return res.status(400).send({ status: false, msg: "Enter Product image" });
+        //-------validation for required field
+        const {title,description,price} = data//destructuring
+
+        let requiredFieldOfRequestArray = [title,description,price]
+        let requiredField = ["title","description","price" ]
+        
+        for (let i = 0; i < requiredFieldOfRequestArray.length; i++) {
+            if (!requestArray.includes(requiredField[i]))
+                return res.status(400).send({ status: false, msg: `${requiredField[i]} is required`})
+        }
+        //for empty values
+        for (let j = 0; j < requiredFieldOfRequestArray.length; j++) {
+            if (!isValid(requiredFieldOfRequestArray[j])) return res.status(400).send({ status: false, msg: `${requiredField[j]} can not be undefined` })
+            if (!isValidString(requiredFieldOfRequestArray[j])) return res.status(400).send({ status: false, msg: `${requiredField[j]} can not be empty` })
+        }
+        //-----for unique value
+        let uniquetitle = await productModel.findOne({title:title})
+        if(uniquetitle) return res.status(404).send({status:false,message:"title should be unique"})
+
+        let currencyId='INR'
+        let currencyFormat = "₹"
+        let sizes =["S","XS","M","X","L","XXL"]
+        for (i=0;i<availableSizes.length;i++){ 
+            if(!sizes.includes(availableSizes[i])) 
+             return res.status(400).send({status:false,message: "This size is not available"} )
+        }
+        //-----Shipping
+        if( !(isFreeShipping == "true" || isFreeShipping == "false") ) 
+         return res.status(400).send({status:false,message: "isFreeShipping should be true or false"} )
+            
+        //data['availableSizes']=availableSizes
+        data['currencyId']=currencyId
+        data["currencyFormat"] =currencyFormat
+    
+         //uploading product to S3 
+        
+        let uploadedFileURL = await uploadFile(files[0])
+        data["productImage"] = uploadedFileURL
+       
+        let productCreate = await productModel.create(data)
+        return res.status(201).send({status:true,message:'Success',data:productCreate})
+
+    } catch(err){
+        return res.status(500).send({error:err.message})
+    }
+};
+
 
 const getProducts=async function(req,res){
 try {
@@ -34,19 +98,7 @@ try {
     res.send(error.message)
 }
 }
-module.exports={getProducts}
-
- 
 
 
-// Returns all products in the collection that aren't deleted.
-// - __Filters__
-//   - Size (The key for this filter will be 'size')
-//   - Product name (The key for this filter will be 'name'). You should return all the products with name containing the substring recieved in this filter
-//   - Price : greater than or less than a specific value. The keys are 'priceGreaterThan' and 'priceLessThan'. 
-  
-// > **_NOTE:_** For price filter request could contain both or any one of the keys. For example the query in the request could look like { priceGreaterThan: 500, priceLessThan: 2000 } or just { priceLessThan: 1000 } )
-  
-// - __Sort__
-//   - Sorted by product price in ascending or descending. The key value pair will look like {priceSort : 1} or {priceSort : -1}
-// _eg_ /products?size=XL&name=Nit%20grit
+
+module.exports = { createProduct,getProducts }

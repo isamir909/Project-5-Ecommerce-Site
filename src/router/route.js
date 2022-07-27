@@ -12,6 +12,9 @@ router.get('/user/:userId/profile',authenticate,userController.getUserProfile)
 router.put('/user/:userId/profile',authenticate,userController.updateData)
 router.get('/products',productController.getProducts)
 
+router.post('/products',productController.createProduct)
+
+
 
 
 
