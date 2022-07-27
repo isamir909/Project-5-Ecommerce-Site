@@ -31,6 +31,10 @@ const validPassword = function checkPassword(password){
     var re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
     return re.test(password);
     }
+let availableSizes = ["S","XL"]
+    const isValidSize =  (availableSizes) => {
+        return ["S", "XS","M","X", "L","XXL", "XL"].indexOf(availableSizes) === -1
+    }
 
-module.exports = {isValid,isValidString,validateMobile,validPinCode,isValidObjectId,validPassword}
+module.exports = {isValid,isValidString,validateMobile,validPinCode,isValidObjectId,validPassword,isValidSize}
 

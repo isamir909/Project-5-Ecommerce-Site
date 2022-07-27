@@ -6,21 +6,21 @@ const productModel= new mongoose.Schema({
 
     description:{type:String, required:true, trim:true},
 
-    price: {type: Integer, required: true,mandatory,trim: true},
+    price: {type: Number, required: true,trim: true},//validation
 
-    currencyId: {type: string, required:true, INR},
+    currencyId: {type: String, required:true, default: 'INR'},
 
-    currencyFormat: {type: String, required: true},
+    currencyFormat: {type: String, required: true,default : "₹"},
 
     isFreeShipping: {type: Boolean, default: false},
 
-    productImage: {type: String, required: true},
+    productImage: {type: String, required: true},//must be image
     
     style: {type: String},
 
-    availableSizes: {type:String},
+    availableSizes: [{type:String}],
 
-    installments: {type: Ineger},
+    installments: {type: Number},//must be number
 
     deletedAt: {type: Date},
 
