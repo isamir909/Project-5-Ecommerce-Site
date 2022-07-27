@@ -1,8 +1,8 @@
 
 const mongoose = require('mongoose'); 
 
-const productModel= new mongoose.Schema({
-    title: {type:String, required:true,unique:true,trim:true},
+const productModel= new mongoose.Schema({ 
+    title: {type:String, required:true,unique:true,trim:true,lowercase:true},
 
     description:{type:String, required:true, trim:true},
 
@@ -12,15 +12,15 @@ const productModel= new mongoose.Schema({
 
     currencyFormat: {type: String, required: true,default : "₹"},
 
-    isFreeShipping: {type: Boolean, default: false},
+    isFreeShipping: {type: Boolean, default: false,trim:true},
 
     productImage: {type: String, required: true},//must be image formate
 
     style: {type: String,trim:true},
 
-    availableSizes: [{type:String}], //should not update already present size //replace whole array in update //case insensitive
+    availableSizes: [{type:String,required:true,trim:true}], //should not update already present size //replace whole array in update //case insensitive
 
-    installments: {type: Number}, //no decimal,must be two digit,positive value
+    installments: {type: Number,trim:true}, //no decimal,must be two digit,positive value
 
     deletedAt: {type: Date},
 

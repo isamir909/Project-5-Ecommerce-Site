@@ -8,7 +8,7 @@ const { default: isEmail } = require('validator/lib/isemail');
 const bodyParser = require('body-parser');
 
 const createUser = async function (req, res) {
-    try {//password regex //json.parse
+    try {//password regex 
         let data=req.body
         let files=req.files
     //     let formate= files[0].originalname
@@ -37,12 +37,6 @@ const createUser = async function (req, res) {
         if(!requestArrayOfAddress.includes("billing"))return res.status(400).send({status:false,msg:"billing address is required"})
         if(typeof data.address.shipping !="object") return res.status(400).send({status:false,msg:"address must be in object form"}) 
         if(typeof data.address.billing !="object") return res.status(400).send({status:false,msg:"address must be in object form"}) 
-
-
-        for (let j = 0; j < valuesOfData.length; j++) {
-            if (!isValid(valuesOfData[j])) return res.status(400).send({ status: false, msg: `${requiredFieldOfRequestArray[j]} can not be undefined` })
-            if (!isValidString(valuesOfData[j])) return res.status(400).send({ status: false, msg: `${requiredFieldOfRequestArray[j]} can not be empty` })
-        }
 
         for (let j = 0; j < requiredFieldOfAddressArray.length; j++) {
             let shippingAddress = Object.keys(data.address.shipping)
