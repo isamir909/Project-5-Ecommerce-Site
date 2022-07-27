@@ -13,7 +13,6 @@ const createUser=async function(req, res){
         let files=req.files
         const {fname,lname,email,password,phone,address}=data
         let requestArray=Object.keys(data)
-     
         let requiredFieldOfRequestArray=[ "fname","lname","email","password","phone","address"]
         let requiredFieldOfAddressArray=[ "street","city","pincode"]
         let valuesOfData=[fname,lname,email,password,phone]
@@ -30,6 +29,7 @@ const createUser=async function(req, res){
                 if(!isValidString(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be empty`})
     } 
         let requestArrayOfAddress=Object.keys(data.address)
+        data.address=JSON.parse(data.address)
         if(typeof data.address !="object") return res.status(400).send({status:false,msg:"address must be in object form"})
         if(!requestArrayOfAddress.includes("shipping"))return res.status(400).send({status:false,msg:"shipping address is required"})
         if(!requestArrayOfAddress.includes("billing"))return res.status(400).send({status:false,msg:"billing address is required"})
@@ -141,8 +141,6 @@ const login = async function(req,res){
 const getUserProfile = async function (req ,res) {
     try{
         userId = req.params.userId
-        if(!isValidObjectId(userId))return res.status(400).send({status:false, message: "Invalid user id" })
-
         const profile = await userModel.findById(userId)
         if(profile == null){ 
             return res.status(404).send({status:false, message:"userProfile not found"})
@@ -158,11 +156,11 @@ const getUserProfile = async function (req ,res) {
 
 const updateData = async function(req,res){
     try{
-        let data = req.body
-        const userId=req.params.userId
+        let data = req.body 
+        const userId=req.params.userId 
         const files=req.files
       
-    if (Object.keys(req.body).length == 0) {return res.status(400).send({ status: false, Msg: "Data is required" })}
+   
         let userdata=await userModel.findOne({_id:userId}).select({_id:0,updatedAt:0,createdAt:0,__v:0}).lean();
        
         if(data.fname){if(!validator.isAlpha(data.fname))return res.status(400).send({status:false,msg:'fname must be between a-z or A-Z'})
@@ -213,17 +211,17 @@ const updateData = async function(req,res){
                 userdata.address.shipping.street=data.address.shipping.street}}}
 
         if(data.email){if(!isEmail(data.email))return res.status(400).send({status:false,msg:'email must be a valid email address'})
-        userdata.email=data.email
+        userdata.email=data.email 
       //check for uniqueness 
     }      
         if(data.phone){if(!validateMobile(data.phone))return res.status(400).send({status:false,msg:"must be valid mobile number"});  
           //check for uniqueness 
         }
-if(files){
-        if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
-            userdata.profileImage=uploadedFileURL}
-            else{res.status(400).send({ msg: "Enter profile image" }) }
-        }
+        if(files){if(files.length!=0){ 
+            if(files && files.length>0){let uploadedFileURL= await uploadFile( files[0] )
+                userdata.profileImage=uploadedFileURL}
+            }}
+
    
          let updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:userdata},{new:true});
         return res.status(200).send({status:true,message:updatedData})
