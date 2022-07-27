@@ -9,7 +9,7 @@ router.post('/login',userController.login)
 
 router.get('/user/:userId/profile',authenticate,userController.getUserProfile)
 router.put('/user/:userId/profile',authenticate,userController.updateData)
-
+router.get('')
 
 
 

@@ -8,7 +8,7 @@ const productModel= new mongoose.Schema({
 
     price: {type: Integer, required: true,mandatory,trim: true},
 
-    currencyId: {type: string, required:true, INR},
+    currencyId: {type: string, required:true},
 
     currencyFormat: {type: String, required: true},
 
@@ -16,11 +16,11 @@ const productModel= new mongoose.Schema({
 
     productImage: {type: String, required: true},
     
-    style: {type: String},
+    style: {type: String,trim:true},
 
-    availableSizes: {type:String},
+    availableSizes: [{type:String}],
 
-    installments: {type: Ineger},
+    installments: {type: Integer},
 
     deletedAt: {type: Date},
 
