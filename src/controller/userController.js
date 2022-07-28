@@ -67,24 +67,24 @@ const createUser = async function (req, res) {
         if (!validator.isAlpha(address.billing.city)) return res.status(400).send({ status: false, msg: 'city name in billing must be between a-z or A-Z' });
         if (!validator.isAlpha(address.shipping.city)) return res.status(400).send({ status: false, msg: 'city name in shipping must be between a-z or A-Z' });
 
-        if (!isEmail(email)) return res.status(400).send({ status: false, msg: 'email must be a valid email address' });
+        if (!isEmail(email.trim())) return res.status(400).send({ status: false, msg: 'email must be a valid email address' });
         if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: 'password must be at least 8 characters long and should be less than 15 characters' });
 
         if (!validateMobile(phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
-        if (!validPinCode(address.billing.pincode)) return res.status(400).send({ status: false, msg: "Enter valid pin code billing address" });
+        if (!validPinCode(address.billing.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code billing address" });
 
-        if (!validPinCode(address.shipping.pincode)) return res.status(400).send({ status: false, msg: "Enter valid pin code in shipping address" });
+        if (!validPinCode(address.shipping.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code in shipping address" });
 
-        let findMobile = await userModel.findOne({ phone: phone })
+        let findMobile = await userModel.findOne({ phone: phone.trim() })
         if (findMobile) return res.status(400).send({ status: false, msg: "This phone number is already in use" });
-        let findEmail = await userModel.findOne({ email: email })
+        let findEmail = await userModel.findOne({ email: email.trim() })
         if (findEmail) return res.status(400).send({ status: false, msg: "This Email is already in use" });
 
         //encrypting password
         const saltRounds = 10;
         const hash = bcrypt.hashSync(data.password, saltRounds);
         data.password = hash
-
+        
         //uploading image to S3 
         if (files && files.length > 0) {
             let uploadedFileURL = await uploadFile(files[0])
@@ -122,7 +122,7 @@ const login = async function (req, res) {
         }
         if (!isEmail(email)) return res.status(400).send({ status: false, msg: 'email must be a valid email address' });
 
-        let checkEmail = await userModel.findOne({ email: email })
+        let checkEmail = await userModel.findOne({ email: email.trim() })
         if (!checkEmail) return res.status(404).send({ status: false, message: "User not found" });
 
         let hash = checkEmail.password
