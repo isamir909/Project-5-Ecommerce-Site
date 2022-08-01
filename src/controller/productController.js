@@ -261,7 +261,9 @@ const updateProduct = async function (req, res) {
         }
         //image valid formate
 
-        let updatedData = await productModel.findOneAndUpdate({ _id: productId }, { $set: productData }, { new: true });
+        let updatedData = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, { $set: productData }, { new: true });
+
+        if(updatedData==null)  return res.status(404).send({ status: false, msg: "This product is deleted" })
 
         return res.status(200).send({ status: true, message: updatedData })
 
