@@ -103,6 +103,7 @@ const createUser = async function (req, res) {
 //postlogin and jwt creation
 const login = async function (req, res) {
     try {
+        //if user deleted not allow login
         let email = req.body.email
         let password = req.body.password;
 

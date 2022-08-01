@@ -267,6 +267,15 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 
 ## Cart APIs (_authentication required as authorization header - bearer token_)
 ### POST /users/:userId/cart (Add to cart)
+<!-- //token required
+//userid in params
+//if user deleted not allow login
+//db call to check cart with userid  + //authentication
+//push product if product is not deleted
+Make sure the product(s) are valid and not deleted.
+- Get product(s) details in response body.
+ -->
+
 - Create a cart for the user if it does not exist. Else add product(s) in cart.
 - Get cart id in request body.
 - Get productId in request body.
