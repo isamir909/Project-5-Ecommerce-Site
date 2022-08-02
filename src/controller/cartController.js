@@ -6,54 +6,42 @@ const {isValidObjectId}=require('../middleware/validation')
 const createCart = async function (req, res) {
     try {
         let reqUserId = req.params.userId
-       
         data = req.body
         const { productId } = data
-        //db call user exist or not
+
+        if(Object.keys(data).length==0)return res.status(400).send({ status: false, msg: "body can not be empty" });
+        if(!isValidObjectId(productId))return res.status(400).send({status:false, message: "Invalid productId" })
+       
+        const findProductPrice = await productModel.findOne({ _id: productId })
+        if(!findProductPrice)return res.status(404).send({status:false,msg:"Product not found"})
+
         const cart = await cartModel.findOne({ userId: reqUserId }).lean()
-        findProductPrice = await productModel.findOne({ _id: productId })
         if (!cart) {
             data["userId"] = reqUserId
             data["items"] = [{ productId: productId, quantity: 1 }]
             data["totalItems"] = 1
-
             data["totalPrice"] = findProductPrice.price
             create = await cartModel.create(data)
             return res.status(201).send({ status: true, msg: "cart created", Data: data })
         }
-        let productList = []
 
-        for (let i = 0; i < cart.items.length; i++) {
-            productList.push(cart.items[i].productId.toString())
+        //if product exist in cart
+        for (let i = 0; i <cart.items.length; i++) {
+            if (cart.items[i].productId.toString()== productId) {
+                cart.items[i].quantity=cart.items[i].quantity + 1 
+
+            let addProduct=await cartModel.findOneAndUpdate({ userId: reqUserId }, { $inc:{totalPrice:findProductPrice.price},$set:{items:cart.items}},{new:true})
+            return res.status(200).send({status:true,msg:"product added",Data:addProduct})
+        }}
+        
+        //if product is not present in cart
+        let updateCartObject={
+            $addToSet:{items:{productId:productId,quantity:1}},
+            $inc:{totalPrice:findProductPrice.price,totalItems:1}
         }
-
-        for (let j = 0; j < productList.length; j++) {
-            // let index=productList.indexOf(productId)
-
-            if (productList[j] == productId) {
-                let quantities = cart.items[j].quantity
-                if (quantities) { (cart.items[j].quantity = quantities + 1) && (cart.totalPrice = cart.totalPrice + findProductPrice.price) }
-            }
-
-            await cartModel.findOneAndUpdate({ userId: reqUserId }, { $set: cart })
-
-        }
-        if (!productList.includes(productId)) {
-            let obj = {}
-            let items = cart.totalItems
-            let price = cart.totalPrice
-            let productPrice = findProductPrice.price
-      
-            obj["productId"] = productId
-            obj["quantity"] = 1
-           console.log(obj);
-
-            (cart.items.push(obj)) && (cart.totalItems = items + 1) && (cart.totalPrice = (price + productPrice))
-            await cartModel.findOneAndUpdate({ userId: reqUserId }, { $set: cart })
-        }
-    
-        let response = await cartModel.findOne({ userId: reqUserId })
-        res.send({ data: response })
+        let updateCart=await cartModel.findOneAndUpdate({ userId: reqUserId },updateCartObject,{new:true})
+            return res.status(200).send({status:true,msg:"product added",Data:updateCart})
+       
 
     } catch (error) {
         console.log(error)

@@ -20,7 +20,7 @@ router.put('/products/:productId',productController.updateProduct)
 router.delete('/products/:productId',productController.deleteProductById)
 
 //......................Cart Feature...........................//
-router.post('/users/:userId/cart',cartController.createCart)
+router.post('/users/:userId/cart',authenticate,cartController.createCart)
 
 
 module.exports =router
