@@ -132,20 +132,16 @@ const getProducts = async function (req, res) {
 const updateProduct = async function (req, res) {
 
     try {
-
         let data = req.body;
         const productId = req.params.productId;
         const files = req.files
-
-
+        
         //enter id
         if (productId.length == 0 || productId == ':productId') return res.status(400).send({ status: false, message: "Enter Product  id" })
-
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Invalid productId" })
 
         let productData = await productModel.findOne({ _id: productId }).select({ _id: 0, updatedAt: 0, createdAt: 0, __v: 0 }).lean();
         if (!productData) return res.status(404).send({ status: false, msg: "ProductId is not Correct" })
-
 
         if (data.title) {
             if (data.title.trim() == "") return res.status(400).send({ status: false, msg: "Title input is empty" });
@@ -158,9 +154,6 @@ const updateProduct = async function (req, res) {
             if (data.description.trim() == "") { return res.status(400).send({ status: false, msg: "Title input is empty" }) };
             productData.description = data.description;//null
         }
-
-
-
         if (data.price) {
             if (data.price === 'null' || data.price < 0) { return res.status(400).send({ status: false, message: "Enter price" }) }
             console.log(data.price)
@@ -172,14 +165,12 @@ const updateProduct = async function (req, res) {
             console.log(productPrice)
             productData.price = productPrice
         }
-
         //if //lowercase
         if (data.isFreeShipping) {
             let isFreeShippingValid = data.isFreeShipping.trim().toLowerCase();
             if (!(isFreeShippingValid == "true" || isFreeShippingValid == "false")) { return res.status(400).send({ status: false, msg: "Input must be in True or False" }) }
             productData.isFreeShipping = isFreeShippingValid;
         }
-
 
         if (data.style) {
             if (data.style.trim() == "") { return res.status(400).send({ status: false, msg: "Title input is empty" }) };
@@ -222,9 +213,7 @@ const updateProduct = async function (req, res) {
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
-
-
-}
+};
 
 //--------------------get product By Id
 const getProductById = async function (req, res) {
@@ -238,14 +227,13 @@ const getProductById = async function (req, res) {
         if (product == null) { return res.status(404).send({ status: false, msg: "product not found" }) }
         else {//response structure
             return res.status(200).send({ status: true, msg: "Product Data", data: product })
-        }
+        } 
     }
     catch (error) {
 
         return res.status(500).send({ status: false, message: error.message });
     }
-
-}
+};
 
 
 //--------------------delete Product by Id
@@ -265,7 +253,7 @@ const deleteProductById = async function (req, res) {
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
-}
+};
 
 
 

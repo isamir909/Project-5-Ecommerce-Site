@@ -21,7 +21,9 @@ const createCart = async function (req, res) {
             data["items"] = [{ productId: productId, quantity: 1 }]
             data["totalItems"] = 1
             data["totalPrice"] = findProductPrice.price
-            create = await cartModel.create(data)
+         let create = await cartModel.create(data)
+         create=create.populate({path:'items.productId',model:'product',select:["_id","title","price","currencyFormat"]})
+
             return res.status(201).send({ status: true, msg: "cart created", Data: data })
         }
 
@@ -65,7 +67,7 @@ const updateCart = async function (req, res) {
         //checking if cart is empty or not
         if (cart.items.length == 0) {return res.status(400).send({ status: false, message: "cart is empty" });}
         //------------------findingProduct.................//
-        let product = await productModel.findById({ _id: productId, isDeleted: false })
+        let product = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!product) return res.status(404).send({ status: false, message: "Product not Found" })
 
         //---validation for removeProduct
@@ -145,5 +147,3 @@ module.exports = { createCart, updateCart ,getCart,deleteCart}
 
 
 
-// - Returns cart summary of the user.
-// - Get product(s) details in response body.
