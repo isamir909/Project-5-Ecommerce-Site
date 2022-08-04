@@ -12,7 +12,7 @@ const createUser = async function (req, res) {
         let data=req.body
         let files=req.files
     //     let formate= files[0].originalname
-    //    console.log(formate)
+
         const {fname,lname,email,password,phone,address}=data
 
         let requestArray=Object.keys(data)
@@ -97,7 +97,6 @@ const createUser = async function (req, res) {
 
         let userData = await userModel.create(data);
         return res.status(201).send({ status: true, message: "User created successfully", data: userData })
-
     } catch (error) {
     console.log(error);
         return res.status(500).send({status:false, message:error.message});
