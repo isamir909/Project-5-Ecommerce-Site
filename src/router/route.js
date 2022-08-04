@@ -28,6 +28,8 @@ router.delete('/users/:userId/cart',authenticate,cartController.deleteCart)
 
 //......................Order Feature...........................//
 router.post('/users/:userId/orders',orderController.createOrder)
+router.put('/users/:userId/orders',authenticate,orderController.updateOrder)
+
 
 module.exports =router
  
