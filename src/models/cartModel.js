@@ -1,5 +1,6 @@
 const mongoose =require('mongoose')
-const objectId = mongoose.Types.ObjectId
+const objectId =mongoose.Schema.Types.ObjectId
+
 
 const cartSchema = new mongoose.Schema({
   userId: {
