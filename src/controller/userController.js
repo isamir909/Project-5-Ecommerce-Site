@@ -8,12 +8,9 @@ const { default: isEmail } = require('validator/lib/isemail');
 const bodyParser = require('body-parser');
 
 const createUser = async function (req, res) {
-    try {//password regex 
+    try { //line 66 address data type validation 
         let data=req.body
         let files=req.files
-        console.log( files);
-    //     let formate= files[0].originalname
-
         const {fname,lname,email,password,phone,address}=data
 
         let requestArray=Object.keys(data)
@@ -21,27 +18,33 @@ const createUser = async function (req, res) {
         let requiredFieldOfAddressArray=[ "street","city","pincode"]
         let valuesOfData=[fname,lname,email,password,phone]
         
-    if(requestArray.length==0) return res.status(400).send({status:false,msg:"body can not be empty"})
-    if(files.length==0) return res.status(400).send({status:false,msg:"Enter profile image"});
-    for(let i=0;i<requiredFieldOfRequestArray.length;i++){ 
+        let formate = files[0].originalname
+        if (!(/\.(jpe?g|png|bmp)$/i.test(formate))) return res.status(400).send({ status: false, message: "file must be an image(jpg,png,jpeg)" })
+
+        if(requestArray.length==0) return res.status(400).send({status:false,msg:"body can not be empty"})
+        if(files.length==0) return res.status(400).send({status:false,msg:"Enter profile image"});
+   
+        //For required  fields 
+        for(let i=0;i<requiredFieldOfRequestArray.length;i++){ 
              if(!requestArray.includes(requiredFieldOfRequestArray[i])) 
              return res.status(400).send({status:false,msg:requiredFieldOfRequestArray[i] +" is required"})
-    }
-            
-    for(let j=0;j<valuesOfData.length;j++) {
+         }
+        //For valid input Data type    
+         for(let j=0;j<valuesOfData.length;j++) {
                 if(!isValid(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be undefined`})
                 if(!isValidString(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be empty`})
-    } 
+         } 
         
-    //for address
-    let requestArrayOfAddress=Object.keys(data.address)
-    //   console.log(requestArrayOfAddress)
+        //for address
+         let requestArrayOfAddress=Object.keys(data.address)
+  
         if(typeof data.address !="object") return res.status(400).send({status:false,msg:"address must be in object form"})
         if(!requestArrayOfAddress.includes("shipping"))return res.status(400).send({status:false,msg:"shipping address is required"})
         if(!requestArrayOfAddress.includes("billing"))return res.status(400).send({status:false,msg:"billing address is required"})
         if(typeof data.address.shipping !="object") return res.status(400).send({status:false,msg:"address must be in object form"}) 
         if(typeof data.address.billing !="object") return res.status(400).send({status:false,msg:"address must be in object form"}) 
 
+        //For required  fields of Address object
         for (let j = 0; j < requiredFieldOfAddressArray.length; j++) {
             let shippingAddress = Object.keys(data.address.shipping)
             let billingAddress = Object.keys(data.address.billing)
@@ -51,6 +54,7 @@ const createUser = async function (req, res) {
             if (!shippingAddress.includes(requiredFieldOfAddressArray[j]))
                 return res.status(400).send({ status: false, msg: 'Enter ' + requiredFieldOfAddressArray[j] + "in shipping address" })
         }
+             //For valid input Data type of Address fields 
         for (let k = 0; k < requiredFieldOfAddressArray.length; k++) {
             const { street, city, pincode } = data.address.billing
             const valueOfBillingAddress = [street, city, pincode]
@@ -58,6 +62,7 @@ const createUser = async function (req, res) {
             if (!isValid(valueOfBillingAddress[k])) return res.status(400).send({ status: false, msg: `${requiredFieldOfAddressArray[k]} can not be undefined` })
             if (!isValidString(valueOfBillingAddress[k])) return res.status(400).send({ status: false, msg: `${requiredFieldOfAddressArray[k]} can not be empty` })
         }
+
         for (let l = 0; l < requiredFieldOfAddressArray.length; l++) {
             const { street, city, pincode } = data.address.billing
             const valueOfShippingAddress = [street, city, pincode]
@@ -65,18 +70,19 @@ const createUser = async function (req, res) {
             if (!isValid(valueOfShippingAddress[l])) return res.status(400).send({ status: false, msg: `${requiredFieldOfAddressArray[l]} can not be undefined` })
             if (!isValidString(valueOfShippingAddress[l])) return res.status(400).send({ status: false, msg: `${requiredFieldOfAddressArray[l]} can not be empty` })
         }
+
         if (!validator.isAlpha(fname)) return res.status(400).send({ status: false, msg: 'fname must be between a-z or A-Z' });
         if (!validator.isAlpha(lname)) return res.status(400).send({ status: false, msg: 'lname must be between a-z or A-Z' });
-
+       
         if (!validator.isAlpha(address.billing.city)) return res.status(400).send({ status: false, msg: 'city name in billing must be between a-z or A-Z' });
         if (!validator.isAlpha(address.shipping.city)) return res.status(400).send({ status: false, msg: 'city name in shipping must be between a-z or A-Z' });
 
         if (!isEmail(email.trim())) return res.status(400).send({ status: false, msg: 'email must be a valid email address' });
         if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: 'password must be at least 8 characters long and should be less than 15 characters' });
+        if (!validPassword(password)) return res.status(400).send({ status: false, msg: "Enter valid password it should contain one capital letter and one special character(@#$%&*!)  " });
 
         if (!validateMobile(phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
         if (!validPinCode(address.billing.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code billing address" });
-
         if (!validPinCode(address.shipping.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code in shipping address" });
 
         let findMobile = await userModel.findOne({ phone: phone.trim() })
@@ -151,7 +157,7 @@ const login = async function (req, res) {
 }
 
 const getUserProfile = async function (req, res) {
-    try {
+    try {//can remove objectid validation 
         userId = req.params.userId
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid user id" })
 

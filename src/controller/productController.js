@@ -4,7 +4,7 @@ const { isValid, isValidString, isValidObjectId } = require("../middleware/valid
 
 //----------POST /products
 const createProduct = async function (req, res) {
-    try {
+    try {//user can upload multiple images,validate formate
         let data = req.body;
         let files = req.files;
         const { title, description, price, availableSizes, isFreeShipping, installments } = data;

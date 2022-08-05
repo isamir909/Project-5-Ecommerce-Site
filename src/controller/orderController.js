@@ -31,7 +31,7 @@ try {
     for(let i=0;i<cart.items.length;i++){
         totalQuantity +=cart.items[i].quantity 
     }
-
+    if(totalQuantity==0)   return res.status(400).send({status:false,msg:"Cart is empty please add product"})
 
     const orderDetails = { 
         userId: reqUserId,
@@ -60,12 +60,12 @@ const updateOrder = async function (req, res) {
        let orderId = req.body.orderId.trim()
        let status = req.body.status
        
-        let order = await orderModel.findOne({_id:orderId,cancellable:true})
-        console.log(order)
-        if(!order){return res.status(400).send({status:false,msg:"order not found"})}
+        let order = await orderModel.findOne({_id:orderId})
+        if(!order){return res.status(404).send({status:false,msg:"order not found"})}
 
-        if(userId != order.userId.toString()){return res.status(400).send({status:false,msg:"user not found"})}
-       
+        if(userId != order.userId.toString()){return res.status(400).send({status:false,msg:"you are not authorized to update data"})}
+        if(order.cancellable=="false"){return res.status(400).send({status:false,msg:"you can not  update order status"})}
+        
         if(!["pending", "completed", "cancelled"].includes(status)){
             return res.status(400).send({status:false,msg:"Status must be among [pending,completed,cancelled]"})
         }
@@ -74,15 +74,13 @@ const updateOrder = async function (req, res) {
             return res.status(400).send({status:false,msg:"already completed , cannot change the status"})
         }
         if(order.status== "cancelled"){
-            return res.status(400).send({status:false,msg:"already cancelled , cannot changethe status"})
+            return res.status(400).send({status:false,msg:"already cancelled , cannot change the status"})
         }
 
        let updateOrder = await orderModel.findOneAndUpdate({_id:order._id},{$set:{status}},{new:true})
-       return res.status(200).send({status:true,msg:"success",data:updateOrder})
-                
+       return res.status(200).send({status:true,msg:"success",data:updateOrder})           
     }
     catch (error) {
-        console.log(error)
         return res.status(500).send({ status: false, message: error.message })
         
     }

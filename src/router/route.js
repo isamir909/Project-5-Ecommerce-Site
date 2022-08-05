@@ -21,8 +21,8 @@ router.put('/products/:productId',productController.updateProduct)
 router.delete('/products/:productId',productController.deleteProductById)
 
 //......................Cart Feature...........................//
-router.post('/users/:userId/cart',authenticate,cartController.createCart)  
-router.put("/users/:userId/cart",authenticate,cartController.updateCart)    
+router.post('/users/:userId/cart',cartController.createCart)  
+router.put("/users/:userId/cart",cartController.updateCart)    
 router.get('/users/:userId/cart',authenticate,cartController.getCart)         
 router.delete('/users/:userId/cart',authenticate,cartController.deleteCart)
 
