@@ -55,5 +55,37 @@ try {
 }
 }
  
+const updateOrder = async function (req, res) {
+    try{
+       let orderId = req.body.orderId.trim()
+       let status = req.body.status
+       
+        let order = await orderModel.findOne({_id:orderId,cancellable:true})
+        console.log(order)
+        if(!order){return res.status(400).send({status:false,msg:"order not found"})}
 
-module.exports={createOrder}
+        if(userId != order.userId.toString()){return res.status(400).send({status:false,msg:"user not found"})}
+       
+        if(!["pending", "completed", "cancelled"].includes(status)){
+            return res.status(400).send({status:false,msg:"Status must be among [pending,completed,cancelled]"})
+        }
+
+        if(order.status== "completed"){
+            return res.status(400).send({status:false,msg:"already completed , cannot change the status"})
+        }
+        if(order.status== "cancelled"){
+            return res.status(400).send({status:false,msg:"already cancelled , cannot changethe status"})
+        }
+
+       let updateOrder = await orderModel.findOneAndUpdate({_id:order._id},{$set:{status}},{new:true})
+       return res.status(200).send({status:true,msg:"success",data:updateOrder})
+                
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
+        
+    }
+}
+
+module.exports={createOrder,updateOrder}

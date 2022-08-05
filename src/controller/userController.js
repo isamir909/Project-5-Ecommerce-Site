@@ -15,6 +15,7 @@ const createUser = async function (req, res) {
     //     let formate= files[0].originalname
 
         const {fname,lname,email,password,phone,address}=data
+
         let requestArray=Object.keys(data)
         let requiredFieldOfRequestArray=[ "fname","lname","email","password","phone","address"]
         let requiredFieldOfAddressArray=[ "street","city","pincode"]
@@ -31,8 +32,10 @@ const createUser = async function (req, res) {
                 if(!isValid(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be undefined`})
                 if(!isValidString(valuesOfData[j]))return res.status(400).send({status:false,msg:`${requiredFieldOfRequestArray[j]} can not be empty`})
     } 
-        let requestArrayOfAddress=Object.keys(data.address)
-      
+        
+    //for address
+    let requestArrayOfAddress=Object.keys(data.address)
+    //   console.log(requestArrayOfAddress)
         if(typeof data.address !="object") return res.status(400).send({status:false,msg:"address must be in object form"})
         if(!requestArrayOfAddress.includes("shipping"))return res.status(400).send({status:false,msg:"shipping address is required"})
         if(!requestArrayOfAddress.includes("billing"))return res.status(400).send({status:false,msg:"billing address is required"})
@@ -100,6 +103,8 @@ const createUser = async function (req, res) {
         return res.status(500).send({status:false, message:error.message});
     } 
 };
+
+
 //postlogin and jwt creation
 const login = async function (req, res) {
     try {
