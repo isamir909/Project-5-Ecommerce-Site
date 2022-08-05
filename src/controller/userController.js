@@ -11,6 +11,7 @@ const createUser = async function (req, res) {
     try {//password regex 
         let data=req.body
         let files=req.files
+        console.log( files);
     //     let formate= files[0].originalname
 
         const {fname,lname,email,password,phone,address}=data
