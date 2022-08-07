@@ -18,9 +18,10 @@ const createUser = async function (req, res) {
         let requiredFieldOfAddressArray=[ "street","city","pincode"]
         let valuesOfData=[fname,lname,email,password,phone]
         
+        if(files && files.length>0){
         let formate = files[0].originalname
         if (!(/\.(jpe?g|png|bmp)$/i.test(formate))) return res.status(400).send({ status: false, message: "file must be an image(jpg,png,jpeg)" })
-
+        }
         if(requestArray.length==0) return res.status(400).send({status:false,msg:"body can not be empty"})
         if(files.length==0) return res.status(400).send({status:false,msg:"Enter profile image"});
    
@@ -48,12 +49,13 @@ const createUser = async function (req, res) {
         for (let j = 0; j < requiredFieldOfAddressArray.length; j++) {
             let shippingAddress = Object.keys(data.address.shipping)
             let billingAddress = Object.keys(data.address.billing)
-
+            
             if (!billingAddress.includes(requiredFieldOfAddressArray[j]))
                 return res.status(400).send({ status: false, msg: 'Enter ' + requiredFieldOfAddressArray[j] + "in billing address" })
             if (!shippingAddress.includes(requiredFieldOfAddressArray[j]))
                 return res.status(400).send({ status: false, msg: 'Enter ' + requiredFieldOfAddressArray[j] + "in shipping address" })
-        }
+             
+            }
              //For valid input Data type of Address fields 
         for (let k = 0; k < requiredFieldOfAddressArray.length; k++) {
             const { street, city, pincode } = data.address.billing
@@ -64,7 +66,7 @@ const createUser = async function (req, res) {
         }
 
         for (let l = 0; l < requiredFieldOfAddressArray.length; l++) {
-            const { street, city, pincode } = data.address.billing
+            const { street, city, pincode } = data.address.shipping
             const valueOfShippingAddress = [street, city, pincode]
 
             if (!isValid(valueOfShippingAddress[l])) return res.status(400).send({ status: false, msg: `${requiredFieldOfAddressArray[l]} can not be undefined` })
@@ -84,7 +86,7 @@ const createUser = async function (req, res) {
         if (!validateMobile(phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
         if (!validPinCode(address.billing.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code billing address" });
         if (!validPinCode(address.shipping.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code in shipping address" });
-
+        //uniqueness
         let findMobile = await userModel.findOne({ phone: phone.trim() })
         if (findMobile) return res.status(400).send({ status: false, msg: "This phone number is already in use" });
         let findEmail = await userModel.findOne({ email: email.trim() })
@@ -252,20 +254,27 @@ const updateData = async function (req, res) {
         }
 
         if (data.email) {
+           // checkEmail = await userModel.findOne({email:data.email})
+            if(data.email == userdata.email){return res.status(400).send({status:false,msg:"this email already exist"})}
             if (!isEmail(data.email)) return res.status(400).send({ status: false, msg: 'email must be a valid email address' })
+            
             userdata.email = data.email
             //check for uniqueness 
         }
         if (data.phone) {
+            // checkPhone  = await userModel.findOne({phone:data.phone})
+            if(data.phone == userdata.phone){return res.status(400).send({status:false,msg:"this Phone number already exist"})}
             if (!validateMobile(data.phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
+            
+            userdata.phone = data.phone
             //check for uniqueness 
         }
-        if (files) {
+        if (files && files.length > 0) {
             if (files && files.length > 0) {
                 let uploadedFileURL = await uploadFile(files[0])
                 userdata.profileImage = uploadedFileURL
             }
-            else { res.status(400).send({ msg: "Enter profile image" }) }
+            else {return res.status(400).send({ msg: "Enter profile image" }) }
         }
 
         let updatedData = await userModel.findOneAndUpdate({ _id: userId }, { $set: userdata }, { new: true });
