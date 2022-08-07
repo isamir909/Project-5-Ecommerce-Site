@@ -86,7 +86,7 @@ const createUser = async function (req, res) {
         if (!validateMobile(phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
         if (!validPinCode(address.billing.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code billing address" });
         if (!validPinCode(address.shipping.pincode.trim())) return res.status(400).send({ status: false, msg: "Enter valid pin code in shipping address" });
-        //uniqueness
+        //unique
         let findMobile = await userModel.findOne({ phone: phone.trim() })
         if (findMobile) return res.status(400).send({ status: false, msg: "This phone number is already in use" });
         let findEmail = await userModel.findOne({ email: email.trim() })

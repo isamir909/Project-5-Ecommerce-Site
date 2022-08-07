@@ -4,7 +4,7 @@ const { isValid, isValidString, isValidObjectId } = require("../middleware/valid
 
 //----------POST /products
 const createProduct = async function (req, res) {
-    try {//user can upload multiple images,validate formate
+    try {//user can upload multiple images,validate formate,available sises can not be repeated in array
         let data = req.body;
         let files = req.files;
         const { title, description, price, availableSizes, isFreeShipping, installments } = data;
@@ -60,7 +60,9 @@ const createProduct = async function (req, res) {
         }
         data["currencyId"] = "INR";
         data["currencyFormat"] = "₹";
-        if (!(/^[1-9][0-9]{1}$/.test(installments.trim()))) return res.status(400).send({ status: false, msg: "enter valid instalment and it should be less than 100 & can not start with zero" })
+        if(installments){
+            if (!(/^[1-9][0-9]{1}$/.test(installments.trim()))) return res.status(400).send({ status: false, msg: "enter valid instalment and it should be less than 100 & can not start with zero" })
+        }
 
         //-----for unique value
         let uniqueTitle = await productModel.findOne({ title: title });
@@ -87,7 +89,7 @@ const getProducts = async function (req, res) {
             sizeFilter = sizeFilter.map(function (x) {
             return x.toUpperCase()});
         
-            let sizes = ["S", "XS", "M", "X", "L", "XXL"];
+            let sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"];
         for (i = 0; i < sizeFilter.length; i++) {
             if (!sizes.includes(sizeFilter[i]))
             return res.status(400).send({status: false,message: `size '${sizeFilter[i]}' is not valid search request`,
