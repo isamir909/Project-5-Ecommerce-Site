@@ -143,7 +143,7 @@ const updateProduct = async function (req, res) {
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Invalid productId" })
 
         let productData = await productModel.findOne({ _id: productId }).select({ _id: 0, updatedAt: 0, createdAt: 0, __v: 0 }).lean();
-        if (!productData) return res.status(404).send({ status: false, msg: "ProductId is not Correct" })
+        if (!productData) return res.status(404).send({ status: false, msg: "ProductId Not found" })
 
         if (data.title) {
             if (data.title.trim() == "") return res.status(400).send({ status: false, msg: "Title input is empty" });
@@ -227,7 +227,7 @@ const getProductById = async function (req, res) {
 
         const product = await productModel.findOne({ _id: productId, isDeleted: false })
         if (product == null) { return res.status(404).send({ status: false, msg: "product not found" }) }
-        else {//response structure
+        else {
             return res.status(200).send({ status: true, msg: "Product Data", data: product })
         } 
     }
@@ -240,7 +240,7 @@ const getProductById = async function (req, res) {
 
 //--------------------delete Product by Id
 const deleteProductById = async function (req, res) {
-    try {//response structure
+    try {
         const productId = req.params.productId.trim()
 
         if (productId.length == 0 || productId == ':productId') return res.status(400).send({ status: false, message: "Enter user id" })
