@@ -8,10 +8,9 @@ try {
     let data=req.body
     const{status,cancellable}=data 
 
-    let cart=await cartModel.findOne({userId:reqUserId})
+    let cart=await cartModel.findOne({userId:reqUserId}).select({ isDeleted:0,__v:0})
  
     if(!cart)return res.status(404).send({status:false,msg:"no cart found"})
-//    if(cart.items.length=0){   return res.status(400).send({status:false,msg:"can not place order, add product in cart"})}
 
     if(cancellable){ 
         if(!(cancellable.toLowerCase().trim()=="true" || cancellable.toLowerCase().trim()=="false" )){
@@ -44,9 +43,10 @@ try {
     };
 
 
-
    let createOrder= await orderModel.create(orderDetails) 
-   return res.status(201).send({ status: true, message: "order created successfully", data: createOrder })
+   let sendOrder= await orderModel.findOne({_id:createOrder._id}).select({ isDeleted:0,__v:0})
+
+   return res.status(201).send({ status: true, message: "order created successfully", data: sendOrder })
     
 } catch (error) {
     console.log(error)
@@ -63,13 +63,18 @@ const updateOrder = async function (req, res) {
         let order = await orderModel.findOne({_id:orderId})
         if(!order){return res.status(404).send({status:false,msg:"order not found"})}
 
-        if(userId != order.userId.toString()){return res.status(400).send({status:false,msg:"you are not authorized to update data"})}
-        if(order.cancellable=="false"){return res.status(400).send({status:false,msg:"you can not  update order status"})}
-        
         if(!["pending", "completed", "cancelled"].includes(status)){
             return res.status(400).send({status:false,msg:"Status must be among [pending,completed,cancelled]"})
         }
 
+        if(req.params.userId.trim() != order.userId.toString())return res.status(400).send({status:false,msg:"you are not authorized to update data"})
+    
+        if(status=="cancelled"){
+        let orders = await orderModel.findOne({_id:orderId})
+        if(!orders.cancellable)return res.status(400).send({status:false,msg:"you can not  update order status"})
+      }
+
+ 
         if(order.status== "completed"){
             return res.status(400).send({status:false,msg:"already completed , cannot change the status"})
         }
@@ -81,6 +86,7 @@ const updateOrder = async function (req, res) {
        return res.status(200).send({status:true,msg:"success",data:updateOrder})           
     }
     catch (error) {
+        console.log(error);
         return res.status(500).send({ status: false, message: error.message })
         
     }
