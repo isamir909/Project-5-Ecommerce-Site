@@ -21,14 +21,14 @@ router.put('/products/:productId',productController.updateProduct)
 router.delete('/products/:productId',productController.deleteProductById)
 
 //......................Cart Feature...........................//
-router.post('/users/:userId/cart',cartController.createCart)  //check a
-router.put("/users/:userId/cart",cartController.updateCart)    
+router.post('/users/:userId/cart',authenticate,cartController.createCart)  //check a
+router.put("/users/:userId/cart",authenticate,cartController.updateCart)    
 router.get('/users/:userId/cart',authenticate,cartController.getCart)         
 router.delete('/users/:userId/cart',authenticate,cartController.deleteCart)
 
 //......................Order Feature...........................//
-router.post('/users/:userId/orders',orderController.createOrder)//a
-router.put('/users/:userId/orders',orderController.updateOrder)//a
+router.post('/users/:userId/orders',authenticate,orderController.createOrder)//a
+router.put('/users/:userId/orders',authenticate,orderController.updateOrder)//a
 
 
 module.exports =router
