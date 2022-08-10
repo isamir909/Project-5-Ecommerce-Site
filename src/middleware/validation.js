@@ -10,7 +10,8 @@ const isValidString=function(value){
     return true   
     }
 
-const validateMobile = function(number) {
+const validateMobile = function(number) {///^[6-9]\d{9}$/
+
     let trimMobile = number.trim()
     let  reg = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/
     return  reg.test(trimMobile) ;

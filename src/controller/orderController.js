@@ -16,10 +16,7 @@ try {
         if(!(cancellable.toLowerCase().trim()=="true" || cancellable.toLowerCase().trim()=="false" )){
             return res.status(400).send({status:false,msg:"cancellable should be true or false"})
         }
-      
     };
-  
-
     if(status){
         if(cancellable.toLowerCase().trim()=="false" && status=="cancelled")return res.status(400).send({status:false,msg:"if cancellable is  false then status value can not be cancelled   "})
         if(!["pending", "completed", "cancelled"].includes(status.toLowerCase().trim())){ return res.status(400).send({status:false,msg:"Status must be among [pending,completed,cancelled]"})}
@@ -44,7 +41,7 @@ try {
 
 
    let createOrder= await orderModel.create(orderDetails) 
-   let sendOrder= await orderModel.findOne({_id:createOrder._id}).select({ isDeleted:0,__v:0})
+   let sendOrder= await orderModel.findOne({_id:createOrder._id}).select({ isDeleted:0,__v:0})//can use filter instead DB call
 
    return res.status(201).send({ status: true, message: "order created successfully", data: sendOrder })
     

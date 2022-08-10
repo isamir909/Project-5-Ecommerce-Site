@@ -8,7 +8,7 @@ const { default: isEmail } = require('validator/lib/isemail');
 const bodyParser = require('body-parser');
 
 const createUser = async function (req, res) {
-    try { //line 66 address data type validation 
+    try {
         let data=req.body
         let files=req.files
         const {fname,lname,email,password,phone,address}=data
@@ -116,7 +116,7 @@ const createUser = async function (req, res) {
 //postlogin and jwt creation
 const login = async function (req, res) {
     try {
-        //if user deleted not allow login
+       
         let email = req.body.email
         let password = req.body.password;
 

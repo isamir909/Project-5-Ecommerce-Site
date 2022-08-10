@@ -84,7 +84,7 @@ const updateCart = async function (req, res) {
         if (productid.length == 0) {
             return res.status(400).send({ status: false, message: "Product is not present in cart" })
         }
-        //finding position of productId in cart which i found from 51 line
+        //finding position of productId in cart
         let index = cart.items.indexOf(productid[0]);
 
         if (removeProduct == 1) {

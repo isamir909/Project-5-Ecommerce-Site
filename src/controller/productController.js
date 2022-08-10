@@ -103,8 +103,8 @@ const getProducts = async function (req, res) {
         }
         if (requestQuery.priceGreaterThan) {
             let gtValue = Math.ceil(requestQuery.priceGreaterThan);
-            let validPrice = /^\d+$/.test(gtValue);
-            if (!validPrice)
+            let validPrice = /^\d+$/.test(gtValue);//can use NAN rather regex, can remove math.ceil
+            if (!validPrice) 
                 return res.status(400).send({status: false,msg: "Enter valid input in priceGreaterThan",});
             findData["price"] = { $gt: requestQuery.priceGreaterThan };
         }
@@ -118,6 +118,7 @@ const getProducts = async function (req, res) {
         }
 
         let findProduct = await productModel.find(findData).sort({ price: 1 });
+        console.log(findProduct )
         if (findProduct.length == 0){
             return res.status(404).send({ status: false, msg: "no data found with this filters" });
             }
