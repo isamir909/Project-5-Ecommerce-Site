@@ -1,11 +1,11 @@
 const userModel = require('../models/userModel')
 const { uploadFile } = require('../router/aws')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt'); 
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const { isValidString, isValid, validateMobile, validPinCode, isValidObjectId, validPassword } = require('../middleware/validation');
 const { default: isEmail } = require('validator/lib/isemail');
-const bodyParser = require('body-parser');
+
 
 const createUser = async function (req, res) {
     try {
@@ -93,7 +93,7 @@ const createUser = async function (req, res) {
         if (findEmail) return res.status(400).send({ status: false, msg: "This Email is already in use" });
 
         //encrypting password
-        const saltRounds = 10;
+        const saltRounds = 10; 
         const hash = bcrypt.hashSync(data.password, saltRounds);
         data.password = hash
         
@@ -104,10 +104,12 @@ const createUser = async function (req, res) {
         }
         else { res.status(400).send({ msg: "Enter profile image" }) }
 
-        let userData = await userModel.create(data);
-        return res.status(201).send({ status: true, message: "User created successfully", data: userData })
+        let newUserData = await userModel.create(data);
+        newUserData= newUserData.toObject()
+        delete newUserData.password
+        return res.status(201).send({ status: true, message: "User created successfully", data: newUserData })
     } catch (error) {
-    console.log(error);
+  
         return res.status(500).send({status:false, message:error.message});
     } 
 };
@@ -139,7 +141,7 @@ const login = async function (req, res) {
         let checkEmail = await userModel.findOne({ email: email.trim() })
         if (!checkEmail) return res.status(404).send({ status: false, message: "User not found" });
 
-        let hash = checkEmail.password
+        let hash = checkEmail.password 
         let compare = bcrypt.compareSync(password, hash)
         if (!compare) return res.status(401).send({ status: false, msg: "Password Incorrect" })
 
@@ -163,14 +165,16 @@ const getUserProfile = async function (req, res) {
         userId = req.params.userId
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid user id" })
 
-        const profile = await userModel.findById(userId)
+        let profile = await userModel.findById(userId)
         if (profile == null) {
             return res.status(404).send({ status: false, message: "userProfile not found" })
         }
-        else return res.status(200).send({ status: true, message: "User profile details", data: profile })
 
-    }
-    catch (error) {
+        profile= profile.toObject()
+        delete profile.password
+        return res.status(200).send({ status: true, message: "User profile details", data: profile })
+
+    }catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 };
@@ -182,7 +186,7 @@ const updateData = async function (req, res) {
         const userId = req.params.userId
         const files = req.files
 
-        if (Object.keys(req.body).length == 0) { return res.status(400).send({ status: false, Msg: "Data is required" }) }
+     
         let userdata = await userModel.findOne({ _id: userId }).select({ _id: 0, updatedAt: 0, createdAt: 0, __v: 0 }).lean();
 
         if (data.fname) {
@@ -254,41 +258,39 @@ const updateData = async function (req, res) {
         }
 
         if (data.email) {
-           // checkEmail = await userModel.findOne({email:data.email})
-            if(data.email == userdata.email){return res.status(400).send({status:false,msg:"this email already exist"})}
             if (!isEmail(data.email)) return res.status(400).send({ status: false, msg: 'email must be a valid email address' })
-            
+            checkEmail = await userModel.findOne({email:data.email,_id:{$ne:userId}})
+            if(checkEmail){return res.status(400).send({status:false,msg:`this email ${data.email} is already in use try another Email`})}
+    
             userdata.email = data.email
             //check for uniqueness 
         }
         if (data.phone) {
-            // checkPhone  = await userModel.findOne({phone:data.phone})
-            if(data.phone == userdata.phone){return res.status(400).send({status:false,msg:"this Phone number already exist"})}
             if (!validateMobile(data.phone)) return res.status(400).send({ status: false, msg: "must be valid mobile number" });
+             checkPhone  = await userModel.findOne({phone:data.phone,_id:{$ne:userId}})
+            if(checkPhone){return res.status(400).send({status:false,msg:"this Phone number already exist"})}
             
             userdata.phone = data.phone
             //check for uniqueness 
         }
-        if (files && files.length > 0) {
+       
             if (files && files.length > 0) {
+                let formate = files[0].originalname
+                if (!(/\.(jpe?g|png|bmp)$/i.test(formate))) return res.status(400).send({ status: false, message: "file must be an image(jpg,png,jpeg)" })
                 let uploadedFileURL = await uploadFile(files[0])
                 userdata.profileImage = uploadedFileURL
             }
-            else {return res.status(400).send({ msg: "Enter profile image" }) }
-        }
 
-        let updatedData = await userModel.findOneAndUpdate({ _id: userId }, { $set: userdata }, { new: true });
-        return res.status(200).send({ status: true, message: updatedData })
+       let updatedData = await userModel.findOneAndUpdate({ _id: userId }, { $set: userdata }, { new: true });
+        updatedData= updatedData.toObject()
+        delete updatedData.password
+
+        return res.status(200).send({ status: true,message:"data updated successfully", data: updatedData })
 
     } catch (err) {
-        console.log(err)
+       
         return res.status(500).send({ error: err.message })
     }
 }
-
-
-
-
-
 
 module.exports = { createUser, getUserProfile, login, updateData } 

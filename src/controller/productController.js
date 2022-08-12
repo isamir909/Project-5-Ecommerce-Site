@@ -21,34 +21,36 @@ const createProduct = async function (req, res) {
         //................validation for required field......................//
         let requiredFieldOfRequestArray = [title,description,price,availableSizes];
         let requiredField = ["title", "description", "price", "availableSizes"];
-
-        for (let i = 0; i < requiredFieldOfRequestArray.length; i++) {
-            if (!requestArray.includes(requiredField[i]))
-                return res.status(400).send({ status: false, msg: `${requiredField[i]} is required` });
+        let missingFields=[]
+        for (let i = 0; i < requiredFieldOfRequestArray.length; i++) { 
+            if (!(isValid(requiredFieldOfRequestArray[i]))){
+                console.log(isValid(requiredFieldOfRequestArray[i]));
+                missingFields.push(requiredField[i]) 
+            }     
         }
-        //for empty values
-        for (let j = 0; j < requiredFieldOfRequestArray.length; j++) {
-            if (!isValid(requiredFieldOfRequestArray[j]))
-                return res.status(400).send({status: false,msg: `${requiredField[j]} can not be undefined`,});
-            if (!isValidString(requiredFieldOfRequestArray[j]))
-                return res.status(400).send({ status: false, msg: `${requiredField[j]} can not be empty` });
+        if(missingFields.length>0){  
+            return res.status(400).send({ status: false, msg: `${missingFields} is required` })
         }
+     
 
         if (price.trim()) {
-            let getValue = Number.parseFloat(price).toFixed(2);
-            let validPrice = /^\d{0,8}(\.\d{1,4})?$/.test(getValue);
-            
-            if (!validPrice) return res.status(400).send({status: false,msg: "Enter valid price "});
-            data.price = getValue;
+            let Price=Number(price.trim())
+             if(isNaN(Price)|| Price<0) {return res.status(400).send({status: false,msg: "Enter valid price "})
+        }
+            Price=Math.round(Price*100)/100
+            data.price = Price;
         }
 
         let sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"];
         let reqSize = availableSizes.split(",");
 
         for (i = 0; i < reqSize.length; i++) {
+            reqSize=[... new Set(reqSize) ]
             if (!sizes.includes(reqSize[i].trim().toUpperCase()))
-            return res.status(400).send({status: false,message: `This size: '${reqSize[i].trim()}' is not available`,});
-            data.availableSizes = reqSize.map(function (x) { return x.toUpperCase() });
+            return res.status(400).send({status: false,message: `This size: '${reqSize[i].trim()}' is not valid size`,});
+           
+            data.availableSizes =reqSize.map(function (x) { return x.toUpperCase()})
+           
         }
 
         //-----Shipping 
@@ -118,7 +120,7 @@ const getProducts = async function (req, res) {
         }
 
         let findProduct = await productModel.find(findData).sort({ price: 1 });
-        console.log(findProduct )
+        
         if (findProduct.length == 0){
             return res.status(404).send({ status: false, msg: "no data found with this filters" });
             }
