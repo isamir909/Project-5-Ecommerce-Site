@@ -39,11 +39,12 @@ try {
         status,
     };
 
+   let createOrder= await orderModel.create(orderDetails)
+       createOrder=createOrder.toObject()
+       delete(createOrder.isDeleted)
 
-   let createOrder= await orderModel.create(orderDetails) 
-   let sendOrder= await orderModel.findOne({_id:createOrder._id}).select({ isDeleted:0,__v:0})//can use filter instead DB call
-
-   return res.status(201).send({ status: true, message: "order created successfully", data: sendOrder })
+    let makeCartEmpty=await cartModel.findOneAndUpdate({_id:cart._id},{$set:{items:[],totalItems:0,totalPrice:0}})   
+    return res.status(201).send({ status: true, message: "order created successfully", data:createOrder })
     
 } catch (error) {
     console.log(error)
