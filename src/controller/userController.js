@@ -94,8 +94,8 @@ const createUser = async function (req, res) {
         
         //uploading image to S3 
         if (files && files.length > 0) {
-            let uploadedFileURL = await uploadFile(files[0])
-            data["profileImage"] = uploadedFileURL
+            // let uploadedFileURL = await uploadFile(files[0])
+            data["profileImage"] = "https://drive.google.com/file/d/1rDbQf4i3Er2zV0D_bQOlvWgm_LBYPlO6/view?usp=sharing"
         }
        
         let newUserData = await userModel.create(data);
