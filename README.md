@@ -1,4 +1,14 @@
-# project/productsManagementGroup
+# Ecommerce-Site
+
+## Description
+Developed a comprehensive e-commerce site with a focus on user management, product catalogue, cart functionality, and order processing. Designed and implemented robust backend models and APIs for managing users, products, carts, and orders. Utilized JWT tokens for secure authorization
+
+## Database Schema Diagram
+
+Below is the database schema diagram for our project. This diagram provides an overview of the database structure, including tables, relationships, and key constraints.
+
+![Database Schema](./resources//db_schema_diagram.png)
+
 
 ### Key points
 - In this project we will work feature wise. That means we pick one object like user, book, blog, etc at a time. We work through it's feature. The steps would be:
