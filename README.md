@@ -11,9 +11,9 @@ Below is the database schema diagram for our project. This diagram provides an o
 
 
 
-# Shopping Cart Application - Feature Implementation Outline
+# Ecommerce-Site Application - Feature Implementation Outline
 
-This outline provides a clear and structured approach for implementing the four main features of the shopping cart application: User, Product, Cart, and Order. Each feature includes specific models and associated APIs to handle operations such as creating users, products, carts, and orders, as well as updating and retrieving relevant information.
+This outline provides a clear and structured approach for implementing the four main features of the Ecommerce-Site application: User, Product, Cart, and Order. Each feature includes specific models and associated APIs to handle operations such as creating users, products, carts, and orders, as well as updating and retrieving relevant information.
 
 ## Feature I - User
 
